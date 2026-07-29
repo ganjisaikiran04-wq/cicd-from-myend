@@ -1,0 +1,390 @@
+#basic code
+node {
+    stage('Build') {
+        echo 'Building...'
+    }
+    stage('Test') {
+        echo 'Testing...'
+    }
+    stage('Deploy') {
+        echo 'Deploying...'
+    }
+}
+##above code vbasic code of groovy##
+
+node {
+
+    stage('Git-clone') {
+        git branch: 'main',
+            url: 'https://github.com/ganjisaikiran04-wq/T-Form-Practice.git'
+    }
+
+    stage('init') {
+        dir('Day-13-workspaces') {
+            sh 'terraform init'
+        }
+    }
+
+    stage('plan') {
+        dir('Day-13-workspaces') {
+            sh 'terraform plan'
+        }
+    }
+
+    stage('approval') {
+        input(
+            message: "You selected ${params.action}. Continue?",
+            ok: "Proceed"
+        )
+    }
+
+    stage('apply') {
+        dir('Day-13-workspaces') {
+            sh 'terraform apply -auto-approve'
+        }
+    }
+
+}
+
+##groovy basic code with input option approval##
+
+node {
+    
+    stage('Approval Check') {
+        script {
+            echo "All parameters: ${params}"
+            echo "Action value: '${params.action}'"
+
+            if (params.action == 'deny') {
+                error("Build stopped because approval was denied")
+            } else {
+                echo "Action is not deny, continuing..."
+            }
+        }
+    }
+
+
+    stage('Git-clone') {
+        git branch: 'main',
+            url: 'https://github.com/ganjisaikiran04-wq/T-Form-Practice.git'
+    }
+
+    stage('init') {
+        dir('Day-13-workspaces') {
+            sh 'terraform init'
+        }
+    }
+
+    stage('plan') {
+        dir('Day-13-workspaces') {
+            sh 'terraform plan'
+        }
+    }
+
+    stage('approval') {
+        input(
+            message: "You selected ${params.action}. Continue?",
+            ok: "Proceed"
+        )
+    }
+
+    stage('apply') {
+        dir('Day-13-workspaces') {
+            sh 'terraform apply -auto-approve'
+        }
+    }
+
+}
+
+##above code with parameters in jenkins called through code##
+
+node {
+
+    properties([
+        parameters([
+            choice(
+                name: 'action',
+                choices: ['allow', 'deny'],
+                description: 'Choose the action which you want to perform'
+            )
+        ])
+    ])
+
+    stage('Approval Check') {
+        echo "All parameters: ${params}"
+        echo "action value: '${params.action}'"
+
+        if (params.action == 'deny') {
+            error("Build stopped because approval was denied")
+        } else {
+            echo "Action is allow, continuing..."
+        }
+    }
+
+    stage('Git-clone') {
+        git branch: 'main',
+            url: 'https://github.com/ganjisaikiran04-wq/T-Form-Practice.git'
+    }
+
+    stage('init') {
+        dir('Day-13-workspaces') {
+            sh 'terraform init'
+        }
+    }
+
+    stage('plan') {
+        dir('Day-13-workspaces') {
+            sh 'terraform plan'
+        }
+    }
+
+    stage('approval') {
+        input(
+            message: "You selected ${params.action}. Continue?",
+            ok: "Proceed"
+        )
+    }
+
+    stage('apply') {
+        dir('Day-13-workspaces') {
+            sh 'terraform apply -auto-approve'
+        }
+    }
+}
+##above code with parameters in code for Approval##
+
+node {
+
+    properties([
+        parameters([
+            choice(
+                name: 'action',
+                choices: ['allow', 'deny'],
+                description: 'Choose the action which you want to perform'
+            )
+        ])
+    ])
+
+    stage('Approval Check') {
+        echo "All parameters: ${params}"
+        echo "action value: '${params.action}'"
+
+        if (params.action == 'deny') {
+            error("Build stopped because approval was denied")
+        } else {
+            echo "Action is allow, continuing..."
+        }
+    }
+
+    stage('Git-clone') {
+        git branch: 'main',
+            url: 'https://github.com/ganjisaikiran04-wq/T-Form-Practice.git'
+    }
+
+    stage('init') {
+        dir('Day-13-workspaces') {
+            sh 'terraform init'
+        }
+    }
+    stage('Validate') {
+                dir('Day-13-workspaces') {
+                    sh 'terraform validate'
+                }
+            }
+
+    stage('Fmt Check') {
+               dir('Day-13-workspaces') {
+                    sh 'terraform fmt -check'
+                }
+            }
+        
+    stage('plan') {
+        dir('Day-13-workspaces') {
+            sh 'terraform plan'
+        }
+    }
+
+    stage('approval') {
+        input(
+            message: "You selected ${params.action}. Continue?",
+            ok: "Proceed"
+        )
+    }
+
+    stage('apply') {
+        dir('Day-13-workspaces') {
+            sh 'terraform apply -auto-approve'
+        }
+    }
+}
+##code with terraform fmt with parameters##
+node {
+
+    properties([
+        parameters([
+            choice(
+                name: 'action',
+                choices: ['allow', 'deny'],
+                description: 'Choose the action which you want to perform'
+            )
+        ])
+    ])
+
+    stage('Approval Check') {
+        echo "All parameters: ${params}"
+        echo "Action value: '${params.action}'"
+
+        if (params.action == 'deny') {
+            error("Build stopped because approval was denied")
+        } else {
+            echo "Action is allow, continuing..."
+        }
+    }
+
+    stage('Git-clone') {
+        git branch: 'main',
+            url: 'https://github.com/ganjisaikiran04-wq/T-Form-Practice.git'
+    }
+
+    stage('init') {
+        dir('Day-13-workspaces') {
+            sh 'terraform init'
+        }
+    }
+
+    stage('Validate') {
+        dir('Day-13-workspaces') {
+            sh 'terraform validate'
+        }
+    }
+
+    stage('Fmt Check') {
+        dir('Day-13-workspaces') {
+            sh 'terraform fmt -check'
+        }
+    }
+
+    stage('Terraform Plan') {
+        dir('Day-13-workspaces') {
+            sh 'terraform plan -out=tfplan'
+        }
+    }
+
+    stage('Approval') {
+        input(
+            message: "You selected ${params.action}. Continue?",
+            ok: "Proceed"
+        )
+    }
+
+    stage('Execute') {
+        dir('Day-13-workspaces') {
+            if (params.action == 'allow') {
+                sh 'terraform apply -auto-approve tfplan'
+            } else {
+                sh 'terraform destroy -auto-approve'
+            }
+        }
+    }
+}
+
+node {
+
+    properties([
+        parameters([
+            choice(
+                name: 'action',
+                choices: ['allow', 'deny'],
+                description: 'Select the action which you want to perform'
+            )
+        ])
+    ])
+
+    stage('Git Clone') {
+        git branch: 'main',
+            url: 'https://github.com/ganjisaikiran04-wq/T-Form-Practice.git'
+    }
+
+    stage('Terraform Init') {
+        dir('Day-13-workspaces') {
+            sh 'terraform init'
+        }
+    }
+
+    stage('Terraform Plan') {
+        if (params.action == 'allow') {
+            dir('Day-13-workspaces') {
+                sh 'terraform plan -out=tfplan'
+            }
+        } else {
+            echo "Plan skipped because action is ${params.action}"
+        }
+    }
+
+    stage('Approval') {
+        input(
+            message: "You selected ${params.action}. Continue?",
+            ok: "Proceed"
+        )
+    }
+
+    stage('Execute') {
+        dir('Day-13-workspaces') {
+            if (params.action == 'allow') {
+                sh 'terraform apply -auto-approve tfplan'
+            } else {
+                sh 'terraform destroy -auto-approve'
+            }
+        }
+    }
+}
+##above 2 codes with parameters and approval with specific folder##
+
+
+node {
+
+    properties([
+        parameters([
+            choice(
+                name: 'action',
+                choices: ['allow', 'deny'],
+                description: 'Select the action which you want to perform'
+            )
+        ])
+    ])
+
+    stage('Git Clone') {
+        git branch: 'main',
+            url: 'https://github.com/ganjisaikiran04-wq/T-Form-Practice.git'
+    }
+
+    stage('Terraform Init') {
+        sh 'terraform init'
+    }
+
+    stage('Terraform Plan') {
+        if (params.action == 'allow') {
+            sh 'terraform plan -out=tfplan'
+        } else {
+            echo "Plan skipped because action is ${params.action}"
+        }
+    }
+
+    stage('Approval') {
+        input(
+            message: "You selected ${params.action}. Continue?",
+            ok: "Proceed"
+        )
+    }
+
+    stage('Execute') {
+        script {
+            if (params.action == 'allow') {
+                sh 'terraform apply -auto-approve tfplan'
+            } else {
+                sh 'terraform destroy -auto-approve'
+            }
+        }
+    }
+}
+##code with parameters and without specific folder##

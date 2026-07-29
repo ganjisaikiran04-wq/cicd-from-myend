@@ -1,0 +1,264 @@
+pipeline {
+    agent any
+
+    stages {
+
+       stage('Approval Check') {
+    steps {
+        script {
+            echo "All parameters: ${params}"
+            echo "Action value: '${params.action}'"
+
+            if (params.action == 'Deny') {
+                error("Build stopped because approval was denied")
+            } else {
+                echo "Action is not Deny, continuing..."
+            }
+        }
+    }
+}
+        stage('git') {
+            steps {
+                git branch: 'main', url: 'https://github.com/ganjisaikiran04-wq/T-Form-Practice.git'
+            }
+        }
+
+        stage('init') {
+            steps {
+                dir('Day-13-workspaces') {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('plan') {
+            steps {
+                dir('Day-13-workspaces') {
+                    sh 'terraform plan'
+                }
+            }
+        }
+
+        stage('approve plan') {
+            steps {
+                input message: 'Do you want to apply the changes?'
+            }
+        }
+
+        stage('apply') {
+            steps {
+                dir('Day-13-workspaces') {
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+    }
+}
+
+##above code with approval permission and parameterized in jekins
+
+pipeline {
+    agent any
+
+    stages {
+        stage('Approval Check') {
+    steps {
+        script {
+            if (params.action == 'deny') {
+                error("Build stopped because approval was denied")
+            } else {
+                echo "Approval granted..."
+            }
+        }
+    }
+}
+        stage('Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/ganjisaikiran04-wq/T-Form-Practice.git'
+            }
+        }
+
+        stage('Init') {
+            steps {
+                dir('Day-13-workspaces') {
+                    sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Validate') {
+            steps {
+                dir('Day-13-workspaces') {
+                    sh 'terraform validate'
+                }
+            }
+        }
+
+        stage('Fmt Check') {
+            steps {
+                dir('Day-13-workspaces') {
+                    sh 'terraform fmt -check'
+                }
+            }
+        }
+
+        stage('Plan') {
+            steps {
+                dir('Day-13-workspaces') {
+                    sh 'terraform plan'
+                }
+            }
+        }
+
+        stage('Approval') {
+            steps {
+                input 'Approve Terraform Apply?'
+            }
+        }
+
+        stage('Apply') {
+            steps {
+                dir('Day-13-workspaces') {
+                    sh 'terraform apply -auto-approve'
+                }
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Infrastructure provisioned successfully'
+        }
+
+        failure {
+            echo 'Terraform deployment failed'
+        }
+    }
+}
+##above code with terraform fmt with post stage
+
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            name: 'action',
+            choices: ['allow', 'deny'],
+            description: 'Select the action which you want to perform'
+        )
+    }
+
+    stages {
+        stage('Git Clone') {
+            steps {
+                git branch: 'main', 
+                url: 'https://github.com/ganjisaikiran04-wq/T-Form-Practice.git'
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                dir('Day-13-workspaces'){
+                sh 'terraform init'
+                }
+            }
+        }
+
+        stage('Terraform Plan') {
+            when {
+                expression { params.action == 'allow' }
+            }
+            steps {
+                dir('Day-13-workspaces'){
+                sh 'terraform plan -out=tfplan'
+                }
+            }
+        }
+
+        stage('Approval') {
+            steps {
+                input(
+                    message: "You selected ${params.action}. Continue?",
+                    ok: "Proceed"
+                )
+            }
+        }
+
+        stage('Execute') {
+            steps {
+                dir('Day-13-workspaces'){
+                script {
+                    if (params.action == 'allow') {
+                        sh 'terraform apply -auto-approve tfplan'
+                    } else {
+                        sh 'terraform destroy -auto-approve'
+                    }
+                }
+                }
+            }
+        }
+    }
+}
+
+##above code with parameters and when function if else function with Specif directory inside the repo
+
+pipeline {
+    agent any
+
+    parameters {
+        choice(
+            name: 'action',
+            choices: ['allow', 'deny'],
+            description: 'Select the action which you want to perform'
+        )
+    }
+
+    stages {
+        stage('Git Clone') {
+            steps {
+                git branch: 'main', 
+                url: 'https://github.com/ganjisaikiran04-wq/T-Form-Practice.git'
+            }
+        }
+
+        stage('Terraform Init') {
+            steps {
+                sh 'terraform init'
+                
+            }
+        }
+
+        stage('Terraform Plan') {
+            when {
+                expression { params.action == 'allow' }
+            }
+            steps {
+                sh 'terraform plan -out=tfplan'
+            }
+        }
+
+        stage('Approval') {
+            steps {
+                input(
+                    message: "You selected ${params.action}. Continue?",
+                    ok: "Proceed"
+                )
+            }
+        }
+
+        stage('Execute') {
+            steps {
+                script {
+                    if (params.action == 'allow') {
+                        sh 'terraform apply -auto-approve tfplan'
+                    } else {
+                        sh 'terraform destroy -auto-approve'
+                    }
+                }
+                
+            }
+        }
+    }
+}
+##code with choise parameters without specific directory
