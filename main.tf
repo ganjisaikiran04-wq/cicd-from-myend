@@ -9,7 +9,6 @@ resource "aws_vpc" "main" {
 		Name = "main-vpc"
 	}
 }
-
 # resource "aws_internet_gateway" "igw" {
 # 	vpc_id = aws_vpc.main.id
 # 	tags = { Name = "main-igw" }
