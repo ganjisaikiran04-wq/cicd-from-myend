@@ -151,7 +151,7 @@ on:
 
 jobs:
   terraform:
-    runs-on: [self-hosted, Linux]
+    runs-on: [self-hosted, Linux, x64]
 
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
