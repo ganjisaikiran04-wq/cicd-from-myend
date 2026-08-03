@@ -73,7 +73,8 @@ on:
   push:
     branches:
       - main
-  workflow_dispatch:   # ✅ Manual trigger only
+
+  workflow_dispatch:
 
 jobs:
   terraform:
