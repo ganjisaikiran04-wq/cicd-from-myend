@@ -143,10 +143,6 @@
 name: Terraform Deploy
 
 on:
-  # push:
-  #   branches:
-  #     - main
-
   workflow_dispatch:
 
 jobs:
@@ -168,12 +164,16 @@ jobs:
 
       - name: Terraform Init
         run: terraform init -upgrade
+        working-directory: ./terraform
 
       - name: Terraform Validate
         run: terraform validate
+        working-directory: ./terraform
 
       - name: Terraform Plan
         run: terraform plan
+        working-directory: ./terraform
 
       - name: Terraform Apply
         run: terraform apply -auto-approve
+        working-directory: ./terraform
