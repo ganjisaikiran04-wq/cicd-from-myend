@@ -179,41 +179,74 @@
 
 ## above code will run when wi will push repo##
 
-name: Terraform Deploy
+# name: Terraform Deploy
+
+# on:
+#   # push:
+#   #   branches:
+#   #     - main
+#   workflow_dispatch:
+
+# jobs:
+#   terraform:
+#     runs-on: [self-hosted, Linux, x64]
+
+#     env:
+#       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+#       AWS_DEFAULT_REGION: ap-southeast-1
+
+#     steps:
+#       - uses: actions/checkout@v4
+
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v3
+#         with:
+#           terraform_version: 1.13.1
+
+#       - name: Terraform Init
+#         run: terraform init -upgrade
+
+#       - name: Terraform Validate
+#         run: terraform validate
+
+#       - name: Terraform Plan
+#         run: terraform plan
+
+#       - name: Terraform Apply
+#         run: terraform apply -auto-approve
+
+#         ##above code will run when we will manually trigger the workflow from github actions tab
+
+name: Multi-Runner CI
 
 on:
-  # push:
-  #   branches:
-  #     - main
-  workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  terraform:
-    runs-on: [self-hosted, Linux, x64]
-
-    env:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      AWS_DEFAULT_REGION: ap-southeast-1
-
+  build:
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Build
+        run: echo "Build on GitHub-hosted runner"
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: 1.13.1
+  test:
+    runs-on: [self-hosted, Linux, x64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Run Tests
+        run: echo "Tests on self-hosted Linux runner"
 
-      - name: Terraform Init
-        run: terraform init -upgrade
+  deploy:
+    runs-on: [self-hosted, amazonlinux]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Deploy
+        run: echo "Deploying from deploy runner"
 
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        run: terraform plan
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
-
-        ##above code will run when we will manually trigger the workflow from github actions tab
