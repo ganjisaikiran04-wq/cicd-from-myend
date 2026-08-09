@@ -218,6 +218,43 @@
 
 #         ##above code will run when we will manually trigger the workflow from github actions tab
 
+# name: Multi-Runner CI
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   build:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+#       - name: Build
+#         run: echo "Build on GitHub-hosted runner"
+
+#   test:
+#     runs-on: [self-hosted, Linux, x64]
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+#       - name: Run Tests
+#         run: echo "Tests on self-hosted Linux runner"
+
+#   deploy:
+#     runs-on: [self-hosted, Linux, x64]
+#     steps:
+#       - name: Checkout
+#         uses: actions/checkout@v4
+#       - name: Deploy
+#         run: echo "Deploying from deploy runner"
+
+## above code with just self-hosted runner will run with checkout only.
+
+
+
+
 name: Multi-Runner CI
 
 on:
@@ -228,25 +265,82 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Version
+        run: terraform version
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive terraform/
+
       - name: Build
         run: echo "Build on GitHub-hosted runner"
 
+
   test:
     runs-on: [self-hosted, Linux, x64]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Version
+        run: terraform version
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: terraform
+        run: terraform plan
+
       - name: Run Tests
         run: echo "Tests on self-hosted Linux runner"
 
+
   deploy:
     runs-on: [self-hosted, Linux, x64]
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Version
+        run: terraform version
+
+      - name: Terraform Init
+        working-directory: terraform
+        run: terraform init
+
+      - name: Terraform Validate
+        working-directory: terraform
+        run: terraform validate
+
+      - name: Terraform Plan
+        working-directory: terraform
+        run: terraform plan
+
+      - name: Terraform Apply
+        working-directory: terraform
+        run: terraform apply -auto-approve
+
       - name: Deploy
         run: echo "Deploying from deploy runner"
 
