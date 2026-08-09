@@ -255,6 +255,7 @@
 
 
 
+
 name: Multi-Runner CI
 
 on:
@@ -263,54 +264,91 @@ on:
       - main
 
 jobs:
+
+  # ----------------------------------------
+  # BUILD - GitHub Hosted Runner
+  # ----------------------------------------
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
 
       - name: Terraform Version
         run: terraform version
 
       - name: Terraform Format Check
-        run: terraform fmt -check -recursive terraform/
+        run: terraform fmt -check -recursive
 
       - name: Build
         run: echo "Build on GitHub-hosted runner"
 
 
+  # ----------------------------------------
+  # TEST - Self Hosted Runner
+  # ----------------------------------------
   test:
+    needs: build
     runs-on: [self-hosted, Linux, x64]
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
+        uses: hashicorp/setup-terraform@v4
 
       - name: Terraform Version
         run: terraform version
 
       - name: Terraform Init
-        working-directory: terraform
         run: terraform init
 
       - name: Terraform Validate
-        working-directory: terraform
         run: terraform validate
 
       - name: Terraform Plan
-        working-directory: terraform
         run: terraform plan
 
       - name: Run Tests
         run: echo "Tests on self-hosted Linux runner"
 
+
+  # ----------------------------------------
+  # DEPLOY - Self Hosted Runner
+  # ----------------------------------------
+  deploy:
+    needs: test
+    runs-on: [self-hosted, Linux, x64]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v4
+
+      - name: Terraform Version
+        run: terraform version
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+
+      - name: Deploy
+        run: echo "Deploying from self-hosted runner"
 
   deploy:
     runs-on: [self-hosted, Linux, x64]
